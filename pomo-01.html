@@ -1,0 +1,809 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>POMO-01</title>
+<style>
+  :root{
+    --page:#211F35;
+    --page-dot:#302D4C;
+    --shell:#5B5880;
+    --shell-lit:#736FA0;
+    --shell-dim:#454269;
+    --shell-base:#2F2D49;
+    --bezel:#1B1A2C;
+    --bezel-lit:#2C2A45;
+    --key-a:#E0709A;
+    --key-a-base:#9C4368;
+    --key-b:#6FC5B4;
+    --key-b-base:#417F72;
+    --label:#B3AEDA;
+    --ink:#E6E2F7;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    min-height:100%;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    justify-content:center;
+    gap:18px;
+    padding:28px 16px 40px;
+    background-color:var(--page);
+    background-image:radial-gradient(var(--page-dot) 1.4px, transparent 1.4px);
+    background-size:14px 14px;
+    font-family:ui-sans-serif,"Avenir Next","Segoe UI",system-ui,sans-serif;
+    color:var(--ink);
+  }
+
+  .device{
+    width:min(408px,100%);
+    padding:16px 16px 20px;
+    border-radius:34px;
+    background:linear-gradient(180deg,var(--shell-lit) 0%,var(--shell) 22%,var(--shell) 74%,var(--shell-dim) 100%);
+    box-shadow:
+      inset 0 3px 0 rgba(255,255,255,.16),
+      inset 0 -6px 0 rgba(0,0,0,.18),
+      0 10px 0 var(--shell-base),
+      0 22px 40px rgba(0,0,0,.55);
+  }
+
+  .nameplate{
+    display:flex;
+    align-items:baseline;
+    justify-content:space-between;
+    padding:0 8px 10px;
+    font-size:10px;
+    letter-spacing:.22em;
+    text-transform:uppercase;
+    color:var(--label);
+  }
+  .nameplate b{font-weight:700;letter-spacing:.3em;}
+
+  .screen-frame{
+    position:relative;
+    padding:12px;
+    border-radius:16px;
+    background:linear-gradient(180deg,var(--bezel-lit),var(--bezel));
+    box-shadow:inset 0 2px 4px rgba(0,0,0,.5), 0 2px 0 rgba(255,255,255,.55);
+  }
+  #lcd{
+    display:block;
+    width:100%;
+    height:auto;
+    border-radius:3px;
+    image-rendering:pixelated;
+    image-rendering:crisp-edges;
+  }
+  .glare{
+    position:absolute;
+    inset:12px;
+    border-radius:3px;
+    pointer-events:none;
+    background:linear-gradient(118deg,rgba(255,255,255,.16) 0%,rgba(255,255,255,.05) 34%,rgba(255,255,255,0) 52%);
+  }
+
+  .dial{
+    display:flex;
+    justify-content:center;
+    gap:8px;
+    margin:16px 0 4px;
+  }
+  .dial button{
+    font:inherit;
+    font-size:11px;
+    font-weight:700;
+    letter-spacing:.12em;
+    padding:6px 12px 5px;
+    color:var(--label);
+    background:var(--shell-lit);
+    border:0;
+    border-radius:9px;
+    cursor:pointer;
+    box-shadow:inset 0 -2px 0 rgba(0,0,0,.28), inset 0 1px 0 rgba(255,255,255,.14);
+  }
+  .dial button[aria-pressed="true"]{
+    color:#fff;
+    background:var(--key-a);
+    box-shadow:inset 0 2px 3px rgba(0,0,0,.28);
+  }
+  .dial button:focus-visible{outline:3px solid var(--bezel);outline-offset:2px;}
+
+  .pads{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:26px;
+    margin-top:12px;
+  }
+  .key{
+    position:relative;
+    width:66px;
+    height:66px;
+    border:0;
+    border-radius:50%;
+    cursor:pointer;
+    transition:transform .06s ease, box-shadow .06s ease;
+  }
+  .key-a{background:var(--key-a);box-shadow:0 6px 0 var(--key-a-base), inset 0 3px 0 rgba(255,255,255,.42);}
+  .key-b{background:var(--key-b);box-shadow:0 6px 0 var(--key-b-base), inset 0 3px 0 rgba(255,255,255,.42);}
+  .key:active,.key.pressed{transform:translateY(5px);}
+  .key-a:active,.key-a.pressed{box-shadow:0 1px 0 var(--key-a-base), inset 0 3px 0 rgba(255,255,255,.3);}
+  .key-b:active,.key-b.pressed{box-shadow:0 1px 0 var(--key-b-base), inset 0 3px 0 rgba(255,255,255,.3);}
+  .key:focus-visible{outline:3px solid var(--bezel);outline-offset:4px;}
+
+  .keycap{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    gap:7px;
+    font-size:9px;
+    letter-spacing:.2em;
+    text-transform:uppercase;
+    color:var(--label);
+  }
+
+  .speaker{
+    margin-left:6px;
+    padding:10px 9px;
+    border:0;
+    border-radius:12px;
+    background:transparent;
+    cursor:pointer;
+    display:grid;
+    grid-template-columns:repeat(3,5px);
+    gap:5px;
+  }
+  .speaker i{
+    width:5px;height:5px;border-radius:50%;
+    background:var(--shell-dim);
+    box-shadow:inset 0 1px 1px rgba(0,0,0,.25);
+  }
+  .speaker[aria-pressed="true"] i{background:var(--key-b);}
+  .speaker:focus-visible{outline:3px solid var(--bezel);outline-offset:2px;}
+
+  .caption{
+    max-width:400px;
+    margin:0;
+    text-align:center;
+    font-size:12px;
+    line-height:1.6;
+    letter-spacing:.02em;
+    color:var(--label);
+  }
+  .caption kbd{
+    font:inherit;font-size:11px;font-weight:700;
+    padding:1px 5px;border-radius:5px;
+    background:#CFC8F2;color:#26243D;
+    box-shadow:0 1px 0 #14131F;
+  }
+  @media (prefers-reduced-motion:reduce){
+    .key{transition:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="device">
+  <div class="nameplate"><b>Pomo-01</b><span>128 × 160</span></div>
+
+  <div class="screen-frame">
+    <canvas id="lcd" width="128" height="160" role="img" aria-label="Pomodoro timer screen"></canvas>
+    <div class="glare"></div>
+  </div>
+
+  <div class="dial" role="group" aria-label="Focus length">
+    <button type="button" data-len="15">15 min</button>
+    <button type="button" data-len="25" aria-pressed="true">25 min</button>
+    <button type="button" data-len="50">50 min</button>
+  </div>
+
+  <div class="pads">
+    <div class="keycap">
+      <button type="button" class="key key-a" id="btnA" aria-label="Start or pause"></button>
+      Start
+    </div>
+    <div class="keycap">
+      <button type="button" class="key key-b" id="btnB" aria-label="Reset timer"></button>
+      Reset
+    </div>
+    <button type="button" class="speaker" id="btnSound" aria-pressed="true" aria-label="Sound on">
+      <i></i><i></i><i></i><i></i><i></i><i></i>
+    </button>
+  </div>
+</div>
+
+<p class="caption">Press <kbd>Space</kbd> to start, <kbd>R</kbd> to reset. The deer sleeps until the timer runs.</p>
+
+<script>
+(function(){
+  "use strict";
+
+  /* ---------- 3×5 bitmap font ---------- */
+  const F3 = {
+    "A":["111","101","111","101","101"], "B":["110","101","110","101","110"],
+    "C":["111","100","100","100","111"], "D":["110","101","101","101","110"],
+    "E":["111","100","111","100","111"], "F":["111","100","111","100","100"],
+    "G":["111","100","101","101","111"], "H":["101","101","111","101","101"],
+    "I":["111","010","010","010","111"], "J":["001","001","001","101","111"],
+    "K":["101","101","110","101","101"], "L":["100","100","100","100","111"],
+    "M":["101","111","111","101","101"], "N":["110","101","101","101","101"],
+    "O":["111","101","101","101","111"], "P":["111","101","111","100","100"],
+    "Q":["111","101","101","111","001"], "R":["111","101","110","101","101"],
+    "S":["111","100","111","001","111"], "T":["111","010","010","010","010"],
+    "U":["101","101","101","101","111"], "V":["101","101","101","101","010"],
+    "W":["101","101","111","111","101"], "X":["101","101","010","101","101"],
+    "Y":["101","101","010","010","010"], "Z":["111","001","010","100","111"],
+    "0":["111","101","101","101","111"], "1":["010","110","010","010","111"],
+    "2":["111","001","111","100","111"], "3":["111","001","111","001","111"],
+    "4":["101","101","111","001","001"], "5":["111","100","111","001","111"],
+    "6":["111","100","111","101","111"], "7":["111","001","001","001","001"],
+    "8":["111","101","111","101","111"], "9":["111","101","111","001","111"],
+    " ":["000","000","000","000","000"], "/":["001","001","010","100","100"],
+    "!":["1","1","1","0","1"], ".":["0","0","0","0","1"], "-":["000","000","111","000","000"]
+  };
+
+  /* ---------- 5×7 bitmap digits ---------- */
+  const F7 = {
+    "0":["01110","10001","10011","10101","11001","10001","01110"],
+    "1":["00100","01100","00100","00100","00100","00100","01110"],
+    "2":["01110","10001","00001","00010","00100","01000","11111"],
+    "3":["11111","00010","00100","00010","00001","10001","01110"],
+    "4":["00010","00110","01010","10010","11111","00010","00010"],
+    "5":["11111","10000","11110","00001","00001","10001","01110"],
+    "6":["00110","01000","10000","11110","10001","10001","01110"],
+    "7":["11111","00001","00010","00100","01000","01000","01000"],
+    "8":["01110","10001","10001","01110","10001","10001","01110"],
+    "9":["01110","10001","10001","01111","00001","00010","01100"],
+    ":":["00","11","11","00","11","11","00"]
+  };
+
+  /* ---------- palettes ---------- */
+  const THEME = {
+    focus:{ bg:"#2C2B47", dim:"#4E4C74", ink:"#CFC8F2" },
+    break:{ bg:"#3B2B4C", dim:"#604B77", ink:"#EBC9F2" }
+  };
+
+
+
+  const LEAF   = "#5C8F45";
+
+  /* ---------- canvas helpers ---------- */
+  const cv = document.getElementById("lcd");
+  const g  = cv.getContext("2d");
+  const W = 128, H = 160;
+
+  function fill(c){ g.fillStyle = c; g.fillRect(0,0,W,H); }
+  function rect(x,y,w,h,c){ g.fillStyle=c; g.fillRect(x|0,y|0,w|0,h|0); }
+  function px(x,y,c){ rect(x,y,1,1,c); }
+
+  function glyphW(ch,font){ const gl=font[ch]; return gl?gl[0].length:3; }
+
+  function textW(str,font,scale,gap){
+    let w=0;
+    for(const ch of str) w += glyphW(ch,font)*scale + gap;
+    return w - gap;
+  }
+
+  function drawText(str,x,y,font,scale,color,gap){
+    let cx=x;
+    for(const ch of str){
+      const gl = font[ch.toUpperCase()];
+      if(gl){
+        for(let r=0;r<gl.length;r++){
+          const row=gl[r];
+          for(let c=0;c<row.length;c++){
+            if(row[c]==="1") rect(cx+c*scale, y+r*scale, scale, scale, color);
+          }
+        }
+      }
+      cx += glyphW(ch.toUpperCase(),font)*scale + gap;
+    }
+  }
+
+  function center(str,y,font,scale,color,gap){
+    drawText(str, Math.round((W - textW(str,font,scale,gap))/2), y, font, scale, color, gap);
+  }
+
+  function dither(x,y,w,h,c){
+    for(let j=0;j<h;j++) for(let i=0;i<w;i++) if(((i+j)&1)===0) px(x+i,y+j,c);
+  }
+
+  function mix(a,b,t){
+    const p=h=>[parseInt(h.slice(1,3),16),parseInt(h.slice(3,5),16),parseInt(h.slice(5,7),16)];
+    const A=p(a),B=p(b);
+    return "#"+[0,1,2].map(i=>Math.round(A[i]+(B[i]-A[i])*t).toString(16).padStart(2,"0")).join("");
+  }
+
+  /* ---------- the mascot ---------- */
+  const DPAL = {
+    k:"#1F1827",  // outline
+    d:"#6E3D38",  // antler / shaded coat
+    b:"#B56D4F",  // coat
+    c:"#E1A470"   // belly + muzzle
+  };
+  const APPLE = "#E0503A";
+
+  const DEER_STAND = [
+    "............................",
+    ".................k..........",
+    "kk.kk.........k.kd..........",
+    "kkkkk.kk...kk.dkkd..........",
+    "kkkkk.kk..kdk.dddk..........",
+    ".kkkk.kk..kdk.dkk...........",
+    "...kkkkk..kddkk.............",
+    "....kkk....kddk.............",
+    "....kkkkkkkdddkk............",
+    ".....kkbbbbbbcck............",
+    "......bbbbbbccb.............",
+    ".....kbbbkbbck..............",
+    "....kkbbbbbbk...............",
+    "....kkbbbbbdbd...kkkk.......",
+    "....kkkkkddbbbkkkbbbbdk...dk",
+    ".........kcbbbbbbbbbbbbk.kbk",
+    ".........kccbbbbbbbbbbbbddck",
+    "..........cccbbbbbbbbbbbkk..",
+    "..........kccbbdbbdbbbbbk...",
+    "..........kcccbbdbdbbbbbk...",
+    "..........kdccbbdcddbbbbbk..",
+    "..........kdkkbd..kkkkbbbk..",
+    "..........kdkkbk...kdkkbbk..",
+    "..........kdk.bk....kd.kbk..",
+    "..........dk..bk....kd.kbk..",
+    ".........kkk.kdk...kdkkdk...",
+    ".........kk..kk....kkkkkk..."
+  ];
+
+  const DEER_SLEEP = [
+    "............................",
+    "............................",
+    "............................",
+    "............................",
+    "............................",
+    "............................",
+    ".................k..........",
+    "kk.kk.........k.kd..........",
+    "kkkkk.kk...kk.dkkd..........",
+    "kkkkk.kk..kdk.dddk..........",
+    ".kkkk.kk..kdk.dkk...........",
+    "...kkkkk..kddkk.............",
+    "....kkk....kddk.............",
+    "....kkkkkkkdddkk............",
+    ".....kkbbbbbbcck............",
+    "......bbbbbbccb.............",
+    ".....kbbkkbbck..............",
+    "....kkbbbbbbk...............",
+    "....kkbbbbbdbd...kkkk.......",
+    "....kkkkkddbbbkkkbbbbdk...dk",
+    ".........kcbbbbbbbbbbbbk.kbk",
+    ".........kccbbbbbbbbbbbbddck",
+    "..........cccbbbbbbbbbbbkk..",
+    "..........kccbbdbbdbbbbbk...",
+    "..........kcccbbdbdbbbbbk...",
+    "..........kdckkbdcdkkbbbbk..",
+    "...........kkkkkkkkkkkkkk..."
+  ];
+
+  // gather -> reach -> extend -> push
+  const DEER_GALLOP = [
+    [
+      "............................",
+      "kk.kk.........k.kkk.........",
+      "kkkkk.kk...kk.kkkdk.........",
+      "kkkkk.kk..kdk.dkdd..........",
+      ".kkkk.kk..kdk.ddd...........",
+      "...kkkkk..kddkkk............",
+      "....kkk....kddk.............",
+      "....kkkkkkkdddkk............",
+      ".....kkbbbbdbbck............",
+      "......bbbbbbccck............",
+      ".....kbbbkbbckk.............",
+      ".....kbbbbbbk...............",
+      "....kkbbbbbbbk..............",
+      "....kkkkkddbbbkkk...........",
+      ".........kcbbbbbbk..........",
+      ".........kccbbbbbbbkkkk.....",
+      "..........bccbbbbbbbbbbbkk..",
+      "..........kccbbbbbbbbbbbkdbk",
+      "..........kcbbbbdbbbbbbbkkck",
+      "..........dbbbbbdccdbbbbbkkk",
+      ".........kdkkkkkkkkcdbbbbbk.",
+      "...........kbkd...kd.kb.....",
+      "...........kbkd...kd.kb.....",
+      "...........kkkk...kk.kb.....",
+      ".....................kk.....",
+      "............................",
+      "............................"
+    ],
+    [
+      "............................",
+      "kk.kk.........k.kkk.........",
+      "kkkkk.kk...kk.kkkdk.........",
+      "kkkkk.kk..kdk.dkdd..........",
+      ".kkkk.kk..kdk.ddd...........",
+      "...kkkkk..kddkkk............",
+      "....kkk....kddk.............",
+      "....kkkkkkkdddkk............",
+      ".....kkbbbbdbbck............",
+      "......bbbbbbccck............",
+      ".....kbbbkbbckk.............",
+      ".....kbbbbbbk...............",
+      "....kkbbbbbbbk..............",
+      "....kkkkkddbbbkkk...........",
+      ".........kcbbbbbbk..........",
+      ".........kccbbbbbbbkkkk.....",
+      "..........bccbbbbbbbbbbbkk..",
+      "..........kccbbbbbbbbbbbkdbk",
+      "..........kcbbbbdbbbbbbbkkck",
+      "..........dbbbbbdccdbbbbbkkk",
+      ".........kdkkkkkkkkcdbbbbbk.",
+      "..........kbkd.....kdkb.....",
+      ".........kbkd.......kdkb....",
+      "........kbkd.........kdkb...",
+      ".......kkkk..........kkkk...",
+      "............................",
+      "............................"
+    ],
+    [
+      "............................",
+      "kk.kk.........k.kkk.........",
+      "kkkkk.kk...kk.kkkdk.........",
+      "kkkkk.kk..kdk.dkdd..........",
+      ".kkkk.kk..kdk.ddd...........",
+      "...kkkkk..kddkkk............",
+      "....kkk....kddk.............",
+      "....kkkkkkkdddkk............",
+      ".....kkbbbbdbbck............",
+      "......bbbbbbccck............",
+      ".....kbbbkbbckk.............",
+      ".....kbbbbbbk...............",
+      "....kkbbbbbbbk..............",
+      "....kkkkkddbbbkkk...........",
+      ".........kcbbbbbbk..........",
+      ".........kccbbbbbbbkkkk.....",
+      "..........bccbbbbbbbbbbbkk..",
+      "..........kccbbbbbbbbbbbkdbk",
+      "..........kcbbbbdbbbbbbbkkck",
+      "..........dbbbbbdccdbbbbbkkk",
+      ".........kdkkkkkkkkcdbbbbbk.",
+      ".........kkkkk.......kkkbbk.",
+      ".........kk..kk.......kdkbd.",
+      "..........k...k........kdkd.",
+      "........................kddk",
+      "........................kddk",
+      "........................kkkk"
+    ],
+    [
+      "............................",
+      "kk.kk.........k.kkk.........",
+      "kkkkk.kk...kk.kkkdk.........",
+      "kkkkk.kk..kdk.dkdd..........",
+      ".kkkk.kk..kdk.ddd...........",
+      "...kkkkk..kddkkk............",
+      "....kkk....kddk.............",
+      "....kkkkkkkdddkk............",
+      ".....kkbbbbdbbck............",
+      "......bbbbbbccck............",
+      ".....kbbbkbbckk.............",
+      ".....kbbbbbbk...............",
+      "....kkbbbbbbbk..............",
+      "....kkkkkddbbbkkk...........",
+      ".........kcbbbbbbk..........",
+      ".........kccbbbbbbbkkkk.....",
+      "..........bccbbbbbbbbbbbkk..",
+      "..........kccbbbbbbbbbbbkdbk",
+      "..........kcbbbbdbbbbbbbkkck",
+      "..........dbbbbbdccdbbbbbkkk",
+      ".........kdkkkkkkkkcdbbbbbk.",
+      "...........kbkd.....kdkb....",
+      "..........kbkd.......kdkb...",
+      "..........kkkk........kdkb..",
+      ".......................kdkb.",
+      ".......................kkkk.",
+      "............................"
+    ]
+  ];
+
+  function sprite(rows,x0,y0){
+    for(let r=0;r<rows.length;r++){
+      const row = rows[r];
+      for(let c=0;c<row.length;c++){
+        const col = DPAL[row[c]];
+        if(col) px(x0+c, y0+r, col);
+      }
+    }
+  }
+
+
+  /* ---------- scenery ---------- */
+  const GROUND = 59;
+
+  function hash(i){ const x = Math.sin(i*127.1)*43758.5453; return x - Math.floor(x); }
+
+  function conifer(x,h,c){
+    for(let r=0;r<h;r++){
+      const w = Math.max(0, Math.round((r+1)*0.42));
+      rect(x-w, GROUND-h+r, w*2+1, 1, c);
+    }
+    px(x, GROUND-1, c);
+  }
+
+  function tuft(x,c,h){
+    px(x, GROUND-1-h, c);
+    px(x-1, GROUND-1, c); px(x+1, GROUND-1, c); px(x, GROUND-1, c);
+  }
+
+  function moon(cx,cy,ink,dim){
+    for(let y=-4;y<=4;y++){
+      for(let x=-4;x<=4;x++){
+        if(x*x + y*y <= 17) px(cx+x, cy+y, ink);
+      }
+    }
+    px(cx-1, cy-1, dim); px(cx+2, cy+1, dim); px(cx, cy+2, dim);
+  }
+
+  const STARS = [[14,20],[31,26],[46,19],[63,24],[79,20],[95,27],[110,21],[121,25]];
+
+  function pip(x,y,filled,ink,dim){
+    const body = filled ? APPLE : dim;
+    px(x+2, y, filled ? LEAF : dim);
+    rect(x,   y+1, 5, 3, body);
+    rect(x+1, y+4, 3, 1, body);
+  }
+
+  /* ---------- state ---------- */
+  const ROUNDS = 4;
+  const state = {
+    mode:"focus",
+    focusLen:25*60,
+    breakLen:5*60,
+    longLen:15*60,
+    remaining:25*60,
+    endAt:0,
+    running:false,
+    round:1,
+    done:0,
+    sound:true,
+    flash:0
+  };
+
+  function total(){
+    if(state.mode === "focus") return state.focusLen;
+    return state.round >= ROUNDS ? state.longLen : state.breakLen;
+  }
+
+  function left(){
+    return state.running ? Math.max(0,(state.endAt - Date.now())/1000) : state.remaining;
+  }
+
+  function clock(sec){
+    const s = Math.ceil(sec);
+    return String(Math.floor(s/60)).padStart(2,"0") + ":" + String(s%60).padStart(2,"0");
+  }
+
+  /* ---------- sound ---------- */
+  let ac = null;
+  function beep(freq,at,dur,vol){
+    if(!state.sound) return;
+    if(!ac) ac = new (window.AudioContext||window.webkitAudioContext)();
+    if(ac.state === "suspended") ac.resume();
+    const t = ac.currentTime + at;
+    const o = ac.createOscillator(), gn = ac.createGain();
+    o.type = "square"; o.frequency.value = freq;
+    gn.gain.setValueAtTime(0.0001,t);
+    gn.gain.exponentialRampToValueAtTime(vol,t+0.01);
+    gn.gain.exponentialRampToValueAtTime(0.0001,t+dur);
+    o.connect(gn).connect(ac.destination);
+    o.start(t); o.stop(t+dur+0.02);
+  }
+  const blip  = ()=> beep(660,0,.06,.05);
+  const chime = ()=> { [523,659,784,1047].forEach((f,i)=>beep(f,i*0.12,0.22,0.08)); };
+
+  /* ---------- drawing ---------- */
+  let frame = 0;
+  let scroll = 0;
+
+  function render(){
+    const th = THEME[state.mode];
+    const inverted = state.flash > 0 && Math.floor(frame/2)%2===0;
+    const bg  = inverted ? th.ink : th.bg;
+    const ink = inverted ? th.bg  : th.ink;
+    const dim = inverted ? mix(th.bg,th.ink,.5) : th.dim;
+
+    fill(bg);
+
+    const t   = left();
+    const tot = total();
+    const prog = tot ? 1 - t/tot : 0;
+
+    /* status bar */
+    drawText(state.mode === "focus" ? "FOCUS" : (state.round >= ROUNDS ? "LONG BREAK" : "BREAK"), 5, 4, F3, 2, ink, 2);
+    for(let i=0;i<ROUNDS;i++) pip(93+i*8, 5, i < state.done, ink, dim);
+    dither(5,15,118,1,dim);
+
+    /* sky: stars appear as the session burns down, moon arcs overhead */
+    for(let i=0;i<STARS.length;i++){
+      if(prog > (i+1)/(STARS.length+2)){
+        const tw = (frame + i*7) % 26 < 3;
+        px(STARS[i][0], STARS[i][1], tw ? dim : ink);
+      }
+    }
+    moon(Math.round(12 + prog*104), Math.round(42 - Math.sin(prog*Math.PI)*24), ink, dim);
+
+    /* ground: two parallax layers, only moving while the deer runs */
+    const farS = scroll*0.32, farCol = mix(th.bg, th.dim, .58), FSTEP = 29;
+    const fbase = Math.floor(farS/FSTEP);
+    for(let i=-1;i<7;i++){
+      const idx = fbase + i;
+      const x = Math.round(idx*FSTEP - farS + hash(idx)*11);
+      if(x > -12 && x < W+12) conifer(x, 5 + Math.round(hash(idx*7)*5), farCol);
+    }
+    rect(0, GROUND, W, 1, dim);
+    for(let x=0;x<W;x+=2) if(((x>>1) + 1) % 3 === 0) px(x, GROUND+2, dim);
+
+    /* mascot */
+    const BASE = 32;
+    const done = t <= 0;
+    const galloping = state.running && state.mode === "focus" && !done;
+
+    let lift = 0, sway = 0, landed = false, pose = DEER_SLEEP;
+
+    if(done){
+      pose = DEER_STAND;
+      const p = (frame % 8)/8;
+      lift = Math.round(6*Math.sin(Math.PI*p));
+      sway = Math.round(2*Math.sin(frame/4));
+    }else if(galloping){
+      const gi = Math.floor(frame*0.75) % 4;
+      pose = DEER_GALLOP[gi];
+      lift = [0,2,3,1][gi];
+      landed = gi === 0;
+      sway = Math.round(2*Math.sin(frame/9));
+    }
+
+    const dx = 50 + sway, dy = BASE - lift;
+
+    const sw = Math.max(10, 20 - lift*2);
+    rect(dx + 17 - (sw>>1), GROUND+1, sw, 1, "#191322");
+
+    // dust as the hooves land
+    if(landed){
+      px(dx+8, GROUND-1, dim); px(dx+6, GROUND-2, dim);
+      px(dx+26, GROUND-1, dim); px(dx+28, GROUND-2, dim);
+    }
+
+    sprite(pose, dx, dy);
+
+    /* foreground grass, faster layer */
+    const GSTEP = 14, gbase = Math.floor(scroll/GSTEP);
+    for(let i=-1;i<12;i++){
+      const idx = gbase + i;
+      const x = Math.round(idx*GSTEP - scroll + hash(idx)*7);
+      if(x > -3 && x < W+3) tuft(x, dim, 1 + Math.round(hash(idx*5)));
+    }
+    if(galloping) scroll += 1.4;
+
+    // sleeping: drifting Zs
+    if(!galloping && !done){
+      for(let i=0;i<3;i++){
+        const ph = (frame/4 + i*3) % 9;
+        drawText("Z", 38 + i*5, dy + 10 - ph, F3, 1 + (i===2?1:0), ink, 1);
+      }
+    }
+
+    /* timer */
+    center(clock(t), 78, F7, 3, ink, 3);
+
+    /* progress bar */
+    const bx=16, by=108, bw=96, bh=8;
+    rect(bx,by,bw,1,ink); rect(bx,by+bh-1,bw,1,ink);
+    rect(bx,by,1,bh,ink); rect(bx+bw-1,by,1,bh,ink);
+    dither(bx+2,by+2,bw-4,bh-4,dim);
+    rect(bx+2, by+2, Math.round((bw-4)*Math.min(1,prog)), bh-4, ink);
+
+    /* round counter */
+    const label = (state.mode === "break" && state.round >= ROUNDS)
+      ? "SET COMPLETE"
+      : "ROUND " + state.round + " OF " + ROUNDS;
+    center(label, 124, F3, 2, ink, 2);
+
+    /* hint */
+    let hint = "";
+    if(t <= 0)             hint = "PRESS START TO CONTINUE";
+    else if(state.running) hint = "PRESS START TO PAUSE";
+    else if(t < tot)       hint = "PAUSED - PRESS START";
+    else                   hint = "PRESS START TO BEGIN";
+    if(state.running || Math.floor(frame/5)%2===0) center(hint, 145, F3, 1, dim, 1);
+  }
+
+  /* ---------- loop ---------- */
+  function tick(){
+    frame++;
+    if(state.running && left() <= 0){
+      state.running = false;
+      state.remaining = 0;
+      state.flash = 12;
+      chime();
+      if(state.mode === "focus") state.done = Math.min(ROUNDS, state.done + 1);
+    }
+    if(state.flash > 0) state.flash--;
+    const t = left();
+    document.title = (state.running || t < total() ? clock(t) + " · " : "") +
+                     (state.mode === "focus" ? "Focus" : "Break") + " · Pomo-01";
+    render();
+  }
+  setInterval(tick, 90);
+
+  /* ---------- controls ---------- */
+  function advance(){
+    if(state.mode === "focus"){
+      state.mode = "break";
+    }else{
+      state.mode = "focus";
+      if(state.round >= ROUNDS){ state.round = 1; state.done = 0; }
+      else { state.round += 1; }
+    }
+    state.remaining = total();
+  }
+
+  function pressA(){
+    blip();
+    if(left() <= 0){ advance(); return; }
+    if(state.running){
+      state.remaining = left();
+      state.running = false;
+    }else{
+      state.endAt = Date.now() + state.remaining*1000;
+      state.running = true;
+    }
+  }
+
+  function pressB(){
+    blip();
+    state.running = false;
+    state.remaining = total();
+  }
+
+  const btnA = document.getElementById("btnA");
+  const btnB = document.getElementById("btnB");
+  btnA.addEventListener("click", pressA);
+  btnB.addEventListener("click", pressB);
+
+  document.querySelectorAll(".dial button").forEach(b=>{
+    b.addEventListener("click", ()=>{
+      document.querySelectorAll(".dial button").forEach(o=>o.removeAttribute("aria-pressed"));
+      b.setAttribute("aria-pressed","true");
+      state.focusLen = parseInt(b.dataset.len,10)*60;
+      state.running = false;
+      if(state.mode !== "focus"){ state.mode = "focus"; }
+      state.remaining = total();
+      blip();
+    });
+  });
+
+  const btnSound = document.getElementById("btnSound");
+  btnSound.addEventListener("click", ()=>{
+    state.sound = !state.sound;
+    btnSound.setAttribute("aria-pressed", String(state.sound));
+    btnSound.setAttribute("aria-label", state.sound ? "Sound on" : "Sound off");
+    if(state.sound) blip();
+  });
+
+  function flashKey(el){
+    el.classList.add("pressed");
+    setTimeout(()=>el.classList.remove("pressed"),90);
+  }
+  document.addEventListener("keydown", e=>{
+    if(e.target.tagName === "BUTTON") return;
+    if(e.code === "Space" || e.key.toLowerCase() === "a"){ e.preventDefault(); pressA(); flashKey(btnA); }
+    if(e.key.toLowerCase() === "r" || e.key.toLowerCase() === "b"){ e.preventDefault(); pressB(); flashKey(btnB); }
+  });
+
+  render();
+})();
+</script>
+</body>
+</html>

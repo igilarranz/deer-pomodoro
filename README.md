@@ -37,10 +37,10 @@ It's a single HTML file — open `pomo-01.html` in any browser. That's it.
 ```bash
 npm install
 npm start        # run windowed
-npm run make     # build the .app bundle
+npm run build    # build the .app bundle + dmg
 ```
 
-The Electron wrapper uses a fixed window sized to the device art with a hiddenInset title bar.
+The Electron wrapper uses a fixed window sized to the device art with a hiddenInset title bar. Full build details (Gatekeeper, custom icon, Intel vs Apple Silicon) are in [SETUP.md](SETUP.md).
 
 ## How the sprite was made
 

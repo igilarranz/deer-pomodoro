@@ -1,0 +1,32 @@
+{
+  "name": "pomo-01",
+  "version": "1.0.0",
+  "description": "A handheld pomodoro timer with a pixel deer",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "electron-builder --mac"
+  },
+  "devDependencies": {
+    "electron": "^33.0.0",
+    "electron-builder": "^25.0.0"
+  },
+  "build": {
+    "appId": "com.bella.pomo01",
+    "productName": "Pomo-01",
+    "files": [
+      "main.js",
+      "pomo-01.html"
+    ],
+    "mac": {
+      "category": "public.app-category.productivity",
+      "target": [
+        {
+          "target": "dmg",
+          "arch": ["arm64"]
+        }
+      ],
+      "icon": "icon.icns"
+    }
+  }
+}
