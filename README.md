@@ -2,11 +2,9 @@
 
 A pomodoro timer styled as a pixel-art handheld device — rendered on a true **128×160 pixel canvas**, the same resolution as an ST7735 TFT display. Built as a UI prototyping exercise for embedded display work: everything on screen is drawn pixel-by-pixel, with no web fonts and no anti-aliasing.
 
-![demo](docs/demo.gif)
-
 ## Why 128×160?
 
-I work with ST7735 displays on embedded projects (see my [ESP32 MP3 player]). Constraining the UI to real hardware resolution forces the same design decisions you face on a microcontroller: hand-set bitmap fonts, sprite budgets, and layouts that survive at 28×28px. The frame refreshes at ~11 fps on purpose, to feel like a budget LCD.
+I work with ST7735 displays on embedded projects, including a portable ESP32 MP3 player. Constraining the UI to real hardware resolution forces the same design decisions you face on a microcontroller: hand-set bitmap fonts, sprite budgets, and layouts that survive at 28×28px. The frame refreshes at ~11 fps on purpose, to feel like a budget LCD.
 
 ## Features
 
@@ -37,10 +35,10 @@ It's a single HTML file — open `pomo-01.html` in any browser. That's it.
 ```bash
 npm install
 npm start        # run windowed
-npm run make     # build the .app bundle
+npm run build    # build the .app bundle + dmg
 ```
 
-The Electron wrapper uses a fixed window sized to the device art with a hiddenInset title bar.
+The Electron wrapper uses a fixed window sized to the device art with a hiddenInset title bar. Full build details (Gatekeeper, custom icon, Intel vs Apple Silicon) are in [SETUP.md](SETUP.md).
 
 ## How the sprite was made
 
